@@ -5,14 +5,6 @@ var options = {
     }
 };
 
-/*    .url('')
-    .waitUntil(
-        () => {
-            console.log('1');
-            return false;
-        }
-    );*/
-
 var assert = require('assert');
 describe('webdriver.io page', function() {
     this.timeout(10000);
@@ -22,13 +14,15 @@ describe('webdriver.io page', function() {
         browser = webdriverio
             .remote(options)
             .init();
-
         done();
     });
 
     it('should have the right title', function (done) {
 
+        const checkNumber = '12776512880';
+        const formattedNumber = checkNumber.substr(0,3) + '-' + checkNumber.substr(3,3) + '-' + checkNumber.substr(6,3) + ' ' + checkNumber.substr(9);
 
+        console.log(formattedNumber);
 
         browser.url('http://msk.npfdoverie.ru:9285/fo_crm/ru_RU/')
             .waitForVisible('#splash',10000)
@@ -56,25 +50,14 @@ describe('webdriver.io page', function() {
             .waitForVisible('#userPassword',10000)
             .setValue('#userPassword', 'PFR330B1')
             .click('#okButton')
-
-        /*.waitUntil(
-            () => {
-
-                browser.alertText().then(text => {
-                    if (text) {
-                        console.log('text:' + text);
-                        browser.alertAccept();
-                    }
-                });
+            .waitForVisible('#form0_СтраховойНомер_i0',30000)
+            .click('#form0_СтраховойНомер_i0')
+            .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
+            .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
+            .keys(checkNumber)
+            .click('#form0_КнопкаНайтиПоНомеру')
 
 
-                return browser.isVisible('#userName').then(function(isVisible) {
-
-                    console.log(isVisible);
-                    return isVisible;
-                });
-            }
-        )*/
             .call(done);
 
     }, 10000);
@@ -84,21 +67,3 @@ describe('webdriver.io page', function() {
     });
 });
 
-
-//client.findElement(By.id('userName')).sendKeys('Бабенышева Анастасия Николаевна');
-//userName.sendKeys('Бабенышева Анастасия Николаевна');
-
-/*client.get(URL)
-    .then(function() {
-        client.wait(until.elementLocated(By.id('userName')), 30000).then(
-            function()
-            {
-                client.findElement(By.id('userName')).sendKeys('Бабенышева Анастасия Николаевна');
-                client.findElement(By.id('userPassword')).sendKeys('NNU330V1');
-                client.findElement(By.id('okButton')).click();
-
-                client.quit();
-            }
-        );
-
-});*/
