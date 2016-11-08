@@ -7,7 +7,7 @@ var options = {
 
 var assert = require('assert');
 describe('webdriver.io page', function() {
-    this.timeout(10000);
+    this.timeout(40000);
     var browser;
 
     beforeEach(function(done) {
@@ -19,10 +19,10 @@ describe('webdriver.io page', function() {
 
     it('should have the right title', function (done) {
 
-        const checkNumber = '12776512880';
+        const checkNumber = '14903891079';
         const formattedNumber = checkNumber.substr(0,3) + '-' + checkNumber.substr(3,3) + '-' + checkNumber.substr(6,3) + ' ' + checkNumber.substr(9);
 
-        console.log(formattedNumber);
+
 
         browser.url('http://msk.npfdoverie.ru:9285/fo_crm/ru_RU/')
             .waitForVisible('#splash',10000)
@@ -31,7 +31,6 @@ describe('webdriver.io page', function() {
                     try {
                         var text = browser.alertText();
 
-                        console.log(text);
                         return text.then(text => { console.log(text); return true }).catch(
                             () => {
                                 console.log('no alert');
@@ -51,16 +50,32 @@ describe('webdriver.io page', function() {
             .setValue('#userPassword', 'PFR330B1')
             .click('#okButton')
             .waitForVisible('#form0_СтраховойНомер_i0',30000)
-            .click('#form0_СтраховойНомер_i0')
+            .click('#form1_СтраховойНомер_i0')
             .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
             .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
             .keys(checkNumber)
-            .click('#form0_КнопкаНайтиПоНомеру')
-
-
+            .click("#form1_Фамилия_i0")
+            .waitForVisible(".baloonWindow", 10000)
+            .then(() => {
+                //console.log('дубль');
+            })
+            .catch(() => {
+                console.log(`{ "status": 0 }`);
+            })
+            .getText(".baloonWindow span")
+            .then(text => {
+                if (text === 'Дубль сверки.')
+                {
+                    console.log(`{ "status": 1 }`);
+                }
+                else
+                {
+                    console.log(`{ "status": -1 }`);
+                }
+            })
             .call(done);
 
-    }, 10000);
+    }, 40000);
 
     afterEach(function(done) {
         done();
