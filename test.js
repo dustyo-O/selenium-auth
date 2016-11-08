@@ -6,79 +6,83 @@ var options = {
 };
 
 var assert = require('assert');
-describe('webdriver.io page', function() {
-    this.timeout(40000);
+function check(checkNumber) {
+
     var browser;
 
-    beforeEach(function(done) {
-        browser = webdriverio
-            .remote(options)
-            .init();
-        done();
-    });
+    browser = webdriverio
+        .remote(options)
+        .init();
 
-    it('should have the right title', function (done) {
+    browser.timeouts('implicit', 10000);
 
-        const checkNumber = '14903891079';
-        const formattedNumber = checkNumber.substr(0,3) + '-' + checkNumber.substr(3,3) + '-' + checkNumber.substr(6,3) + ' ' + checkNumber.substr(9);
+    return browser.url('http://msk.npfdoverie.ru:9285/fo_crm/ru_RU/')
+        .waitForVisible('#splash',10000)
+        .waitUntil(
+            () => {
+                try {
+                    var text = browser.alertText();
 
-
-
-        browser.url('http://msk.npfdoverie.ru:9285/fo_crm/ru_RU/')
-            .waitForVisible('#splash',10000)
-            .waitUntil(
-                () => {
-                    try {
-                        var text = browser.alertText();
-
-                        return text.then(text => { console.log(text); return true }).catch(
-                            () => {
-                                console.log('no alert');
-                                return false
-                            }
-                        );
-                    }
-                    catch (e) {
-                        return false;
-                    }
-                }, 5000
-            )
-            .alertAccept()
-            .waitForVisible('#userName',10000)
-            .setValue('#userName', 'Бабенышева Анастасия Николаевна')
-            .waitForVisible('#userPassword',10000)
-            .setValue('#userPassword', 'PFR330B1')
-            .click('#okButton')
-            .waitForVisible('#form0_СтраховойНомер_i0',30000)
-            .click('#form1_СтраховойНомер_i0')
-            .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
-            .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
-            .keys(checkNumber)
-            .click("#form1_Фамилия_i0")
-            .waitForVisible(".baloonWindow", 10000)
-            .then(() => {
-                //console.log('дубль');
-            })
-            .catch(() => {
-                console.log(`{ "status": 0 }`);
-            })
-            .getText(".baloonWindow span")
-            .then(text => {
-                if (text === 'Дубль сверки.')
-                {
-                    console.log(`{ "status": 1 }`);
+                    return text.then(text => { return true }).catch(
+                        () => {
+                            return false
+                        }
+                    );
                 }
-                else
-                {
-                    console.log(`{ "status": -1 }`);
+                catch (e) {
+                    return false;
                 }
-            })
-            .call(done);
+            }, 5000
+        )
+        .alertAccept()
+        .waitForVisible('#userName',10000)
+        .setValue('#userName', 'Бабенышева Анастасия Николаевна')
+        .waitForVisible('#userPassword',10000)
+        .setValue('#userPassword', 'PFR330B1')
+        .click('#okButton')
+        .waitForVisible('#form0_СтраховойНомер_i0',30000)
+        .click('#form1_СтраховойНомер_i0')
+        .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
+        .keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008").keys("\u0008")
+        .keys(checkNumber)
+        .click("#form1_Фамилия_i0")
+        .waitForVisible(".baloonWindow", 10000)
+        .then(() => {
+            //console.log('дубль');
+        })
+        .catch(() => {
+            return `{ "status": 0 }`;
+        })
+        .getText(".baloonWindow span")
+        .then(text => {
+            if (text === 'Дубль сверки.')
+            {
+                return `{ "status": 1 }`;
+            }
+            else
+            {
+                return `{ "status": -1 }`;
+            }
+        });
 
-    }, 40000);
+}
 
-    afterEach(function(done) {
-        done();
-    });
-});
+var http = require("http");
+var url = require("url");
+
+
+http.createServer(function(request, response) {
+    var q = url.parse(request.url).query;
+    const id = q.split('=')[1];
+
+    response.writeHead(200, {"Content-Type": "text/plain"});
+    check(id).then(
+        check => {
+            response.write(check);
+            response.end();
+        }
+    );
+}).listen(3000);
+
+
 
